@@ -119,12 +119,17 @@ statement
 
     // proc
     | showProcStatement                                                                      #showProc
+    | userCatalogStatement                                                                   #userCatalog
     ;
 
 // ---------------------------------------- DataBase Statement ---------------------------------------------------------
 alterDbQuotaStmt
     : ALTER DATABASE identifier SET DATA QUOTA identifier
     | ALTER DATABASE identifier SET REPLICA QUOTA INTEGER_VALUE
+    ;
+
+userCatalogStatement
+    : USE CATALOG identifierOrString
     ;
 
 createDbStatement

@@ -51,7 +51,8 @@ public class CatalogMgr {
         this.connectorMgr = connectorMgr;
     }
 
-    public synchronized void createCatalog(CreateCatalogStmt stmt) throws DdlException {
+//    public synchronized void createCatalog(CreateCatalogStmt stmt) throws DdlException {
+    public void createCatalog(CreateCatalogStmt stmt) throws DdlException {
         String type = stmt.getCatalogType();
         String catalogName = stmt.getCatalogName();
         String comment = stmt.getComment();
@@ -73,7 +74,12 @@ public class CatalogMgr {
 
         writeLock();
         try {
+            Preconditions.checkState(!catalogs.containsKey(catalogName), "Catalog '%s' already exists", catalogName);
+            connectorMgr.createConnector(new ConnectorContext(catalogName, type, properties));
+            id = GlobalStateMgr.getCurrentState().getNextId();
+            catalog = new ExternalCatalog(id, catalogName, comment, properties);
             catalogs.put(catalogName, catalog);
+            GlobalStateMgr.getCurrentState().getEditLog().logCreateCatalog(catalog);
         } finally {
             writeUnLock();
         }
@@ -81,7 +87,7 @@ public class CatalogMgr {
         GlobalStateMgr.getCurrentState().getEditLog().logCreateCatalog(catalog);
     }
 
-    public synchronized void dropCatalog(DropCatalogStmt stmt) {
+    public void dropCatalog(DropCatalogStmt stmt) {
         String catalogName = stmt.getName();
         readLock();
         try {
@@ -93,7 +99,10 @@ public class CatalogMgr {
 
         writeLock();
         try {
+            connectorMgr.removeConnector(catalogName);
             catalogs.remove(catalogName);
+            DropCatalogLog dropCatalogLog = new DropCatalogLog(catalogName);
+            GlobalStateMgr.getCurrentState().getEditLog().logDropCatalog(dropCatalogLog);
         } finally {
             writeUnLock();
         }
