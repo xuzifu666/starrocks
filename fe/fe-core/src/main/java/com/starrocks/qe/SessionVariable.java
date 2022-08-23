@@ -53,6 +53,11 @@ public class SessionVariable implements Serializable, Writable, Cloneable {
     public static final String PREFER_COMPUTE_NODE = "prefer_compute_node";
     public static final String EXEC_MEM_LIMIT = "exec_mem_limit";
 
+    public static final String RECURSIVE_DIR_SEARCH_ENABLED = "recursive_dir_search_enabled";
+    @VariableMgr.VarAttr(name = RECURSIVE_DIR_SEARCH_ENABLED)
+    private boolean recursiveDirSearchEnabled = true;
+
+
     /**
      * configure the mem limit of load process on BE.
      * Previously users used exec_mem_limit to set memory limits.
@@ -665,6 +670,14 @@ public class SessionVariable implements Serializable, Writable, Cloneable {
         } else {
             this.maxExecMemByte = maxExecMemByte;
         }
+    }
+
+    public boolean isRecursiveDirSearchEnabled() {
+        return recursiveDirSearchEnabled;
+    }
+
+    public void setRecursiveDirSearchEnabled(boolean recursiveDirSearchEnabled) {
+        this.recursiveDirSearchEnabled = recursiveDirSearchEnabled;
     }
 
     public void setLoadMemLimit(long loadMemLimit) {
