@@ -667,8 +667,9 @@ public class HiveMetaClient {
         // The performance is better than getting status and block location one by one.
         try {
 //            RemoteIterator<LocatedFileStatus> blockIterator = fileSystem.listLocatedStatus(new Path(uri.getPath()));
+            // files in hdfs may have multiple directories, so we need to list all files in hdfs recursively here
             RemoteIterator<LocatedFileStatus> blockIterator = null;
-            if (ConnectContext.get() != null && !ConnectContext.get().getSessionVariable().isRecursiveDirSearchEnabled()) {
+            if (!Config.recursive_dir_search_enabled) {
                 blockIterator = fileSystem.listLocatedStatus(new Path(uri.getPath()));
             } else {
                 blockIterator = fileSystem.listFiles(new Path(uri.getPath()), true);
@@ -710,7 +711,7 @@ public class HiveMetaClient {
     }
 
     private boolean isValidDataFile(FileStatus fileStatus) {
-        if (fileStatus.isDirectory()) {
+        if (fileStatus.isDirectory() && !Config.recursive_dir_search_enabled) {
             return false;
         }
 

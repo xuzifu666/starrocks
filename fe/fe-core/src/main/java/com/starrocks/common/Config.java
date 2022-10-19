@@ -1620,4 +1620,7 @@ public class Config extends ConfigBase {
      */
     @ConfField
     public static String jaeger_grpc_endpoint = "";
+
+    @ConfField(mutable = true)
+    public static boolean recursive_dir_search_enabled = false;
 }
